@@ -19,11 +19,11 @@ public class Main {
             try {
                 String content = Files.readString(path, StandardCharsets.UTF_8);
             } catch(Exception e) {
-                ErrorHandler.crash();
+                ErrorHandler.crash(Error.FILE_CANNOT_BE_READ);
             }
+        } else {
+            ErrorHandler.crash(Error.FILE_NOT_FOUND);
         }
-
-        ErrorHandler.crash();
     }
 
 }

@@ -6,7 +6,9 @@ class ErrorHandler {
     /**
      * Crashes the execution of the BareBones script
      */
-    static void crash() {
+    static void crash(Error error) {
+        System.out.println("************************");
+        System.out.print("Error encountered: " + error.getMessage());
         System.exit(0);
     }
 
