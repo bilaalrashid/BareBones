@@ -17,18 +17,29 @@ class Interpreter {
     }
 
     /**
+     * Executes the code
+     */
+    void exec() {
+        for (int i = 0; i < this.lines.length; i++) {
+            String line = this.lines[i];
+
+            try {
+                Command command = Command.fromLine(line);
+            } catch(Exception e) {
+                ErrorHandler.crash(Error.INVALID_COMMAND);
+            }
+        }
+    }
+
+    /**
      * Parses the code into individual lines to be executed
      * @param code The raw code
      * @return The individual lines of code
      */
     private String[] splitCodeIntoLines(String code) {
-        String[] lines = code.split(";");
-
-        for (int i = 0; i < lines.length; i++) {
-            lines[i] = lines[i].trim();
-        }
-
-        return lines;
+        String removeWhitespace = "(?m)^[ \t]*\r?\n";
+        code = code.replaceAll(removeWhitespace, "").trim();
+        return code.split(";");
     }
 
 }

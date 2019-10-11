@@ -19,6 +19,7 @@ public class Main {
             try {
                 String code = Files.readString(path, StandardCharsets.UTF_8);
                 Interpreter interpreter = new Interpreter(code);
+                interpreter.exec();
             } catch(Exception e) {
                 ErrorHandler.crash(Error.FILE_CANNOT_BE_READ);
             }

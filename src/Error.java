@@ -6,7 +6,8 @@ enum Error {
     // Values
 
     FILE_NOT_FOUND("The specified file has not been found"),
-    FILE_CANNOT_BE_READ("The file cannot be read");
+    FILE_CANNOT_BE_READ("The file cannot be read"),
+    INVALID_COMMAND("The specified command is not defined");
 
     // Properties
 
