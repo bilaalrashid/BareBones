@@ -26,7 +26,8 @@ class Interpreter {
             try {
                 Command command = Command.fromLine(line);
             } catch(Exception e) {
-                ErrorHandler.crash(Error.INVALID_COMMAND);
+                int lineNumber = i + 1;
+                ErrorHandler.crash(Error.INVALID_COMMAND, lineNumber);
             }
         }
     }
