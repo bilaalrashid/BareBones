@@ -7,7 +7,9 @@ enum Error {
 
     FILE_NOT_FOUND("The specified file has not been found"),
     FILE_CANNOT_BE_READ("The file cannot be read"),
-    INVALID_COMMAND("The specified command is not defined");
+    INVALID_COMMAND("The specified command is not defined"),
+    REDEFINED_VARIABLE("The specified variable has already been defined"),
+    INVALID_SYNTAX("Invalid syntax used");
 
     // Properties
 
