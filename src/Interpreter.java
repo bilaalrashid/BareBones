@@ -71,7 +71,14 @@ class Interpreter {
     private String[] splitCodeIntoLines(String code) {
         String removeWhitespace = "(?m)^[ \t]*\r?\n";
         code = code.replaceAll(removeWhitespace, "").trim();
-        return code.split(";");
+
+        String[] lines = code.split(";");
+
+        for (int i = 0; i < lines.length; i++) {
+            lines[i] = lines[i].trim();
+        }
+
+        return lines;
     }
 
     /**
