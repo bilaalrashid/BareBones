@@ -30,18 +30,34 @@ class Memory {
     }
 
     /**
-     * Increments a variable by a specified value
+     * Increases a variable by a specified value
      * @param variable The name of the variable
      * @param increment The value to increment by
      * @throws RuntimeException Variable is not defined
      */
-    void incrementVariable(String variable, int increment) {
+    void increaseVariable(String variable, int increment) {
         if (!this.variables.containsKey(variable)) {
             throw new RuntimeException("Variable is not defined");
         }
 
         int currentValue = this.variables.get(variable);
         int newValue = currentValue + increment;
+        this.variables.put(variable, newValue);
+    }
+
+    /**
+     * Decreases a variable by a specified value
+     * @param variable The name of the variable
+     * @param decrement The value to increment by
+     * @throws RuntimeException Variable is not defined
+     */
+    void decreaseVariable(String variable, int decrement) {
+        if (!this.variables.containsKey(variable)) {
+            throw new RuntimeException("Variable is not defined");
+        }
+
+        int currentValue = this.variables.get(variable);
+        int newValue = currentValue - decrement;
         this.variables.put(variable, newValue);
     }
 

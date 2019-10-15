@@ -48,6 +48,7 @@ class Interpreter {
                         this.runIncrementLine(line, lineNumber);
                         break;
                     case DECREMENT:
+                        this.runDecrementLine(line, lineNumber);
                         break;
                     case WHILE:
                         break;
@@ -113,7 +114,27 @@ class Interpreter {
             String variable = simpleLine.getVariable();
 
             try {
-                this.memory.incrementVariable(variable, 1);
+                this.memory.increaseVariable(variable, 1);
+            } catch(Exception e) {
+                ErrorHandler.crash(Error.UNDEFINED_VARIABLE, lineNumber);
+            }
+        } catch(Exception e) {
+            ErrorHandler.crash(Error.INVALID_SYNTAX, lineNumber);
+        }
+    }
+
+    /**
+     * Runs a line of code with an decrement command
+     * @param line The line of code
+     * @param lineNumber The line number
+     */
+    private void runDecrementLine(String line, int lineNumber) {
+        try {
+            SimpleLine simpleLine = new SimpleLine(Command.DECREMENT, line);
+            String variable = simpleLine.getVariable();
+
+            try {
+                this.memory.decreaseVariable(variable, 1);
             } catch(Exception e) {
                 ErrorHandler.crash(Error.UNDEFINED_VARIABLE, lineNumber);
             }
