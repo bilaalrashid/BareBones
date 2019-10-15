@@ -29,4 +29,12 @@ class Memory {
         this.variables.put(variable, value);
     }
 
+    /**
+     * Gets all of the variables stored in memory
+     * @return All of the variable names and values
+     */
+    Map<String, Integer> getAllVariables() {
+        return this.variables;
+    }
+
 }

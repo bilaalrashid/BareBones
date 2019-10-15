@@ -1,3 +1,5 @@
+import java.util.Map;
+
 /**
  * Interprets the BareBones code
  */
@@ -22,7 +24,7 @@ class Interpreter {
      * @param code The BareBones code to interpret
      */
     Interpreter(String code) {
-        this.lines = splitCodeIntoLines(code);
+        this.lines = this.splitCodeIntoLines(code);
     }
 
     // Public methods
@@ -30,7 +32,7 @@ class Interpreter {
     /**
      * Executes the code
      */
-    void exec() {
+    Map<String, Integer> exec() {
         for (int i = 0; i < this.lines.length; i++) {
             String line = this.lines[i];
             int lineNumber = i + 1;
@@ -55,6 +57,8 @@ class Interpreter {
                 ErrorHandler.crash(Error.INVALID_COMMAND, lineNumber);
             }
         }
+
+        return this.memory.getAllVariables();
     }
 
     // Private methods
