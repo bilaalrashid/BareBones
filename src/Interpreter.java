@@ -45,6 +45,7 @@ class Interpreter {
                         this.runSetLine(line, lineNumber);
                         break;
                     case INCREMENT:
+                        this.runIncrementLine(line, lineNumber);
                         break;
                     case DECREMENT:
                         break;
@@ -95,6 +96,26 @@ class Interpreter {
                 this.memory.setVariable(variable, 0);
             } catch(Exception e) {
                 ErrorHandler.crash(Error.REDEFINED_VARIABLE, lineNumber);
+            }
+        } catch(Exception e) {
+            ErrorHandler.crash(Error.INVALID_SYNTAX, lineNumber);
+        }
+    }
+
+    /**
+     * Runs a line of code with an increment command
+     * @param line The line of code
+     * @param lineNumber The line number
+     */
+    private void runIncrementLine(String line, int lineNumber) {
+        try {
+            SimpleLine simpleLine = new SimpleLine(Command.INCREMENT, line);
+            String variable = simpleLine.getVariable();
+
+            try {
+                this.memory.incrementVariable(variable, 1);
+            } catch(Exception e) {
+                ErrorHandler.crash(Error.UNDEFINED_VARIABLE, lineNumber);
             }
         } catch(Exception e) {
             ErrorHandler.crash(Error.INVALID_SYNTAX, lineNumber);

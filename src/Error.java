@@ -9,6 +9,7 @@ enum Error {
     FILE_CANNOT_BE_READ("The file cannot be read"),
     INVALID_COMMAND("The specified command is not defined"),
     REDEFINED_VARIABLE("The specified variable has already been defined"),
+    UNDEFINED_VARIABLE("The specified variable does not exist"),
     INVALID_SYNTAX("Invalid syntax used");
 
     // Properties
