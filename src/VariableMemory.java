@@ -2,9 +2,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The interpreter memory
+ * The interpreter memory for storing variables
  */
-class Memory {
+class VariableMemory {
 
     // Variables
 

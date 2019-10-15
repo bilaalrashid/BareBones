@@ -10,6 +10,8 @@ enum Error {
     INVALID_COMMAND("The specified command is not defined"),
     REDEFINED_VARIABLE("The specified variable has already been defined"),
     UNDEFINED_VARIABLE("The specified variable does not exist"),
+    REDEFINED_LOOP("The specified loop has already been defined"),
+    UNDEFINED_LOOP("The specified loop does not exist"),
     INVALID_SYNTAX("Invalid syntax used");
 
     // Properties

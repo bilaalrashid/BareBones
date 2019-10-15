@@ -13,9 +13,14 @@ class Interpreter {
     private final String[] lines;
 
     /**
-     * The interpreter memory
+     * The interpreter memory for storing variables
      */
-    private Memory memory = new Memory();
+    private VariableMemory variableMemory = new VariableMemory();
+
+    /**
+     * The interpreter memory for storing loops
+     */
+    private LoopMemory loopMemory = new LoopMemory();
 
     // Constructor
 
@@ -51,8 +56,10 @@ class Interpreter {
                         this.runDecrementLine(line, lineNumber);
                         break;
                     case WHILE:
+                        this.runWhileLine(lineNumber);
                         break;
                     case END:
+                        this.runEndLine(lineNumber);
                         break;
                 }
             } catch(Exception e) {
@@ -60,7 +67,7 @@ class Interpreter {
             }
         }
 
-        return this.memory.getAllVariables();
+        return this.variableMemory.getAllVariables();
     }
 
     // Private methods
@@ -94,7 +101,7 @@ class Interpreter {
             String variable = simpleLine.getVariable();
 
             try {
-                this.memory.setVariable(variable, 0);
+                this.variableMemory.setVariable(variable, 0);
             } catch(Exception e) {
                 ErrorHandler.crash(Error.REDEFINED_VARIABLE, lineNumber);
             }
@@ -114,7 +121,7 @@ class Interpreter {
             String variable = simpleLine.getVariable();
 
             try {
-                this.memory.increaseVariable(variable, 1);
+                this.variableMemory.increaseVariable(variable, 1);
             } catch(Exception e) {
                 ErrorHandler.crash(Error.UNDEFINED_VARIABLE, lineNumber);
             }
@@ -134,12 +141,36 @@ class Interpreter {
             String variable = simpleLine.getVariable();
 
             try {
-                this.memory.decreaseVariable(variable, 1);
+                this.variableMemory.decreaseVariable(variable, 1);
             } catch(Exception e) {
                 ErrorHandler.crash(Error.UNDEFINED_VARIABLE, lineNumber);
             }
         } catch(Exception e) {
             ErrorHandler.crash(Error.INVALID_SYNTAX, lineNumber);
+        }
+    }
+
+    /**
+     * Runs a line of code with a while command
+     * @param lineNumber The line number
+     */
+    private void runWhileLine(int lineNumber) {
+        try {
+            this.loopMemory.setLoopStart(lineNumber);
+        } catch(Exception e) {
+            ErrorHandler.crash(Error.REDEFINED_LOOP, lineNumber);
+        }
+    }
+
+    /**
+     * Runs a line of code with an end command
+     * @param lineNumber The line number
+     */
+    private void runEndLine(int lineNumber) {
+        try {
+            this.loopMemory.setLoopEnd(lineNumber);
+        } catch(Exception e) {
+            ErrorHandler.crash(Error.UNDEFINED_LOOP, lineNumber);
         }
     }
 
