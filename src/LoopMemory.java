@@ -21,28 +21,28 @@ class LoopMemory {
 
     /**
      * Stores the starting line of a loop
-     * @param lineNumber The line number
+     * @param lineIndex The line number
      */
-    void setLoopStart(int lineNumber) {
-        if (this.loops.containsKey(lineNumber)) {
+    void setLoopStart(int lineIndex) {
+        if (this.loops.containsKey(lineIndex)) {
             throw new RuntimeException("Loops already defined");
         }
 
-        this.loops.put(lineNumber, null);
+        this.loops.put(lineIndex, null);
     }
 
     /**
      * Stores the ending line of a loop
-     * @param lineNumber The line number
+     * @param lineIndex The line number
      */
-    void setLoopEnd(int lineNumber) {
+    void setLoopEnd(int lineIndex) {
         List<Integer> nonEndedLoops = this.getNonEndedLoops();
 
         Collections.reverse(nonEndedLoops);
 
         if (!nonEndedLoops.isEmpty()) {
             int loopToEnd = nonEndedLoops.get(0);
-            this.loops.put(loopToEnd, lineNumber);
+            this.loops.put(loopToEnd, lineIndex);
         } else {
             throw new RuntimeException("Loop does not exist");
         }
@@ -50,13 +50,13 @@ class LoopMemory {
 
     /**
      * Gets the starting line of a loop
-     * @param endLineNumber The line number of the loop end
+     * @param endLineIndex The line number of the loop end
      * @return The line number of the start of the loop
      * @throws NullPointerException Loop does not exist
      */
-    int getLoopStart(int endLineNumber) throws NullPointerException {
+    int getLoopStart(int endLineIndex) throws NullPointerException {
         for (Map.Entry<Integer, Integer> entry: this.loops.entrySet()) {
-            if (entry.getValue().equals(endLineNumber)) {
+            if (entry.getValue().equals(endLineIndex)) {
                 return entry.getKey();
             }
         }
@@ -66,11 +66,11 @@ class LoopMemory {
 
     /**
      * Gets the ending line of a loop
-     * @param startLineNumber The line number of the loop end
+     * @param startLineIndex The line number of the loop end
      * @return The line number of the end of the loop
      */
-    int getLoopEnd(int startLineNumber) {
-        return this.loops.get(startLineNumber);
+    int getLoopEnd(int startLineIndex) {
+        return this.loops.get(startLineIndex);
     }
 
     // Private methods

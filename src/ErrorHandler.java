@@ -15,10 +15,10 @@ class ErrorHandler {
     /**
      * Crashes the execution of the BareBones script
      * @param error The error that has been encountered
-     * @param line The line number the error occured on
+     * @param lineIndex The pointer to the line number the error occurred on
      */
-    static void crash(Error error, int line) {
-        Console.write("Error encountered on line " + line + ": " + error.getMessage());
+    static void crash(Error error, int lineIndex) {
+        Console.write("Error encountered on line " + (lineIndex+1) + ": " + error.getMessage());
         System.exit(0);
     }
 

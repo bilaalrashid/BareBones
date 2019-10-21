@@ -45,12 +45,12 @@ class Interpreter {
     Map<String, Integer> exec() {
         while (this.currentLineIndex <= this.lines.length) {
             String line = this.lines[this.currentLineIndex];
-            int lineNumber = this.currentLineIndex + 1;
+            int nextLineIndex = this.currentLineIndex + 1;
 
-            this.executeLine(line, lineNumber);
+            this.executeLine(line, this.currentLineIndex);
 
             // Checks a jump has not occurred
-            if (this.currentLineIndex + 1 == lineNumber) {
+            if (this.currentLineIndex + 1 == nextLineIndex) {
                 this.currentLineIndex += 1;
             }
         }
@@ -73,7 +73,6 @@ class Interpreter {
 
         for (int i = 0; i < lines.length; i++) {
             String line = lines[i];
-            int lineNumber = i + 1;
 
             lines[i] = line.trim();
 
@@ -81,12 +80,12 @@ class Interpreter {
                 Command command = Command.fromLine(line);
 
                 if (command == Command.WHILE) {
-                    this.markLoop(lineNumber);
+                    this.markLoop(i);
                 } else if (command == Command.END) {
-                    this.markEnd(lineNumber);
+                    this.markEnd(i);
                 }
             } catch(Exception e) {
-                ErrorHandler.crash(Error.INVALID_COMMAND, lineNumber);
+                ErrorHandler.crash(Error.INVALID_COMMAND, i);
             }
         }
 
@@ -95,65 +94,65 @@ class Interpreter {
 
     /**
      * Marks the start of a loop
-     * @param lineNumber The line number of the starting line
+     * @param lineIndex The line number of the starting line
      */
-    private void markLoop(int lineNumber) {
+    private void markLoop(int lineIndex) {
         try {
-            this.loopMemory.setLoopStart(lineNumber);
+            this.loopMemory.setLoopStart(lineIndex);
         } catch(Exception e) {
-            ErrorHandler.crash(Error.REDEFINED_LOOP, lineNumber);
+            ErrorHandler.crash(Error.REDEFINED_LOOP, lineIndex);
         }
     }
 
     /**
      * Marks the end of a loop
-     * @param lineNumber The line number of the ending line
+     * @param lineIndex The line number of the ending line
      */
-    private void markEnd(int lineNumber) {
+    private void markEnd(int lineIndex) {
         try {
-            this.loopMemory.setLoopEnd(lineNumber);
+            this.loopMemory.setLoopEnd(lineIndex);
         } catch(Exception e) {
-            ErrorHandler.crash(Error.UNDEFINED_LOOP, lineNumber);
+            ErrorHandler.crash(Error.UNDEFINED_LOOP, lineIndex);
         }
     }
 
     /**
      * Executes an individual line of code
      * @param line The line of code
-     * @param lineNumber The number of the line
+     * @param lineIndex The number of the line
      */
-    private void executeLine(String line, int lineNumber) {
+    private void executeLine(String line, int lineIndex) {
         try {
             Command command = Command.fromLine(line);
 
             switch (command) {
                 case SET:
-                    this.runSetLine(line, lineNumber);
+                    this.runSetLine(line, lineIndex);
                     break;
                 case INCREMENT:
-                    this.runIncrementLine(line, lineNumber);
+                    this.runIncrementLine(line, lineIndex);
                     break;
                 case DECREMENT:
-                    this.runDecrementLine(line, lineNumber);
+                    this.runDecrementLine(line, lineIndex);
                     break;
                 case WHILE:
-                    this.runWhileLine(line, lineNumber);
+                    this.runWhileLine(line, lineIndex);
                     break;
                 case END:
-                    this.runEndLine(lineNumber);
+                    this.runEndLine(lineIndex);
                     break;
             }
         } catch(Exception e) {
-            ErrorHandler.crash(Error.INVALID_COMMAND, lineNumber);
+            ErrorHandler.crash(Error.INVALID_COMMAND, lineIndex);
         }
     }
 
     /**
      * Runs a line of code with a set command
      * @param line The line of code
-     * @param lineNumber The line number
+     * @param lineIndex The line number
      */
-    private void runSetLine(String line, int lineNumber) {
+    private void runSetLine(String line, int lineIndex) {
         try {
             SimpleLine simpleLine = new SimpleLine(Command.SET, line);
             String variable = simpleLine.getVariable();
@@ -161,19 +160,19 @@ class Interpreter {
             try {
                 this.variableMemory.setVariable(variable, 0);
             } catch(Exception e) {
-                ErrorHandler.crash(Error.REDEFINED_VARIABLE, lineNumber);
+                ErrorHandler.crash(Error.REDEFINED_VARIABLE, lineIndex);
             }
         } catch(Exception e) {
-            ErrorHandler.crash(Error.INVALID_SYNTAX, lineNumber);
+            ErrorHandler.crash(Error.INVALID_SYNTAX, lineIndex);
         }
     }
 
     /**
      * Runs a line of code with an increment command
      * @param line The line of code
-     * @param lineNumber The line number
+     * @param lineIndex The line number
      */
-    private void runIncrementLine(String line, int lineNumber) {
+    private void runIncrementLine(String line, int lineIndex) {
         try {
             SimpleLine simpleLine = new SimpleLine(Command.INCREMENT, line);
             String variable = simpleLine.getVariable();
@@ -181,19 +180,19 @@ class Interpreter {
             try {
                 this.variableMemory.increaseVariable(variable, 1);
             } catch(Exception e) {
-                ErrorHandler.crash(Error.UNDEFINED_VARIABLE, lineNumber);
+                ErrorHandler.crash(Error.UNDEFINED_VARIABLE, lineIndex);
             }
         } catch(Exception e) {
-            ErrorHandler.crash(Error.INVALID_SYNTAX, lineNumber);
+            ErrorHandler.crash(Error.INVALID_SYNTAX, lineIndex);
         }
     }
 
     /**
      * Runs a line of code with an decrement command
      * @param line The line of code
-     * @param lineNumber The line number
+     * @param lineIndex The line number
      */
-    private void runDecrementLine(String line, int lineNumber) {
+    private void runDecrementLine(String line, int lineIndex) {
         try {
             SimpleLine simpleLine = new SimpleLine(Command.DECREMENT, line);
             String variable = simpleLine.getVariable();
@@ -201,18 +200,18 @@ class Interpreter {
             try {
                 this.variableMemory.decreaseVariable(variable, 1);
             } catch(Exception e) {
-                ErrorHandler.crash(Error.UNDEFINED_VARIABLE, lineNumber);
+                ErrorHandler.crash(Error.UNDEFINED_VARIABLE, lineIndex);
             }
         } catch(Exception e) {
-            ErrorHandler.crash(Error.INVALID_SYNTAX, lineNumber);
+            ErrorHandler.crash(Error.INVALID_SYNTAX, lineIndex);
         }
     }
 
     /**
      * Runs a line of code with a while command
-     * @param lineNumber The line number
+     * @param lineIndex The line number
      */
-    private void runWhileLine(String line, int lineNumber) {
+    private void runWhileLine(String line, int lineIndex) {
         try {
             ConditionLine conditionLine = new ConditionLine(Command.WHILE, line);
 
@@ -226,25 +225,26 @@ class Interpreter {
 
                 try {
                     if (!conditionLine.isConditionTrue()) {
-                        this.currentLineIndex = this.loopMemory.getLoopEnd(lineNumber);
+                        // Skip to the first line after the end of the loop
+                        this.currentLineIndex = this.loopMemory.getLoopEnd(lineIndex) + 1;
                     }
                 } catch(Exception e) {
-                    ErrorHandler.crash(Error.INVALID_SYNTAX, lineNumber);
+                    ErrorHandler.crash(Error.INVALID_SYNTAX, lineIndex);
                 }
             } catch(Exception e) {
-                ErrorHandler.crash(Error.UNDEFINED_VARIABLE, lineNumber);
+                ErrorHandler.crash(Error.UNDEFINED_VARIABLE, lineIndex);
             }
         } catch(Exception e) {
-            ErrorHandler.crash(Error.INVALID_SYNTAX, lineNumber);
+            ErrorHandler.crash(Error.INVALID_SYNTAX, lineIndex);
         }
     }
 
     /**
      * Runs a line of code with an end command
-     * @param lineNumber The line number
+     * @param lineIndex The line number
      */
-    private void runEndLine(int lineNumber) {
-        this.currentLineIndex = this.loopMemory.getLoopStart(lineNumber) - 1;
+    private void runEndLine(int lineIndex) {
+        this.currentLineIndex = this.loopMemory.getLoopStart(lineIndex);
     }
 
 }
