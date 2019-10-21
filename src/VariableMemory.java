@@ -62,6 +62,15 @@ class VariableMemory {
     }
 
     /**
+     * Gets the value for a variable
+     * @param variable The name of the variable
+     * @return The value
+     */
+    Integer getValueForVariable(String variable) {
+        return this.variables.get(variable);
+    }
+
+    /**
      * Gets all of the variables stored in memory
      * @return All of the variable names and values
      */

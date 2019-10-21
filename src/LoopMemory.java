@@ -48,6 +48,31 @@ class LoopMemory {
         }
     }
 
+    /**
+     * Gets the starting line of a loop
+     * @param endLineNumber The line number of the loop end
+     * @return The line number of the start of the loop
+     * @throws NullPointerException Loop does not exist
+     */
+    int getLoopStart(int endLineNumber) throws NullPointerException {
+        for (Map.Entry<Integer, Integer> entry: this.loops.entrySet()) {
+            if (entry.getValue().equals(endLineNumber)) {
+                return entry.getKey();
+            }
+        }
+
+        throw new NullPointerException("Loop does not exist");
+    }
+
+    /**
+     * Gets the ending line of a loop
+     * @param startLineNumber The line number of the loop end
+     * @return The line number of the end of the loop
+     */
+    int getLoopEnd(int startLineNumber) {
+        return this.loops.get(startLineNumber);
+    }
+
     // Private methods
 
     /**

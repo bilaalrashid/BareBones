@@ -22,6 +22,11 @@ class Interpreter {
      */
     private LoopMemory loopMemory = new LoopMemory();
 
+    /**
+     * The index of the current line to execute
+     */
+    private int currentLineIndex = 0;
+
     // Constructor
 
     /**
@@ -38,32 +43,15 @@ class Interpreter {
      * Executes the code
      */
     Map<String, Integer> exec() {
-        for (int i = 0; i < this.lines.length; i++) {
-            String line = this.lines[i];
-            int lineNumber = i + 1;
+        while (this.currentLineIndex <= this.lines.length) {
+            String line = this.lines[this.currentLineIndex];
+            int lineNumber = this.currentLineIndex + 1;
 
-            try {
-                Command command = Command.fromLine(line);
+            this.executeLine(line, lineNumber);
 
-                switch (command) {
-                    case SET:
-                        this.runSetLine(line, lineNumber);
-                        break;
-                    case INCREMENT:
-                        this.runIncrementLine(line, lineNumber);
-                        break;
-                    case DECREMENT:
-                        this.runDecrementLine(line, lineNumber);
-                        break;
-                    case WHILE:
-                        this.runWhileLine(lineNumber);
-                        break;
-                    case END:
-                        this.runEndLine(lineNumber);
-                        break;
-                }
-            } catch(Exception e) {
-                ErrorHandler.crash(Error.INVALID_COMMAND, lineNumber);
+            // Checks a jump has not occurred
+            if (this.currentLineIndex + 1 == lineNumber) {
+                this.currentLineIndex += 1;
             }
         }
 
@@ -84,10 +72,80 @@ class Interpreter {
         String[] lines = code.split(";");
 
         for (int i = 0; i < lines.length; i++) {
-            lines[i] = lines[i].trim();
+            String line = lines[i];
+            int lineNumber = i + 1;
+
+            lines[i] = line.trim();
+
+            try {
+                Command command = Command.fromLine(line);
+
+                if (command == Command.WHILE) {
+                    this.markLoop(lineNumber);
+                } else if (command == Command.END) {
+                    this.markEnd(lineNumber);
+                }
+            } catch(Exception e) {
+                ErrorHandler.crash(Error.INVALID_COMMAND, lineNumber);
+            }
         }
 
         return lines;
+    }
+
+    /**
+     * Marks the start of a loop
+     * @param lineNumber The line number of the starting line
+     */
+    private void markLoop(int lineNumber) {
+        try {
+            this.loopMemory.setLoopStart(lineNumber);
+        } catch(Exception e) {
+            ErrorHandler.crash(Error.REDEFINED_LOOP, lineNumber);
+        }
+    }
+
+    /**
+     * Marks the end of a loop
+     * @param lineNumber The line number of the ending line
+     */
+    private void markEnd(int lineNumber) {
+        try {
+            this.loopMemory.setLoopEnd(lineNumber);
+        } catch(Exception e) {
+            ErrorHandler.crash(Error.UNDEFINED_LOOP, lineNumber);
+        }
+    }
+
+    /**
+     * Executes an individual line of code
+     * @param line The line of code
+     * @param lineNumber The number of the line
+     */
+    private void executeLine(String line, int lineNumber) {
+        try {
+            Command command = Command.fromLine(line);
+
+            switch (command) {
+                case SET:
+                    this.runSetLine(line, lineNumber);
+                    break;
+                case INCREMENT:
+                    this.runIncrementLine(line, lineNumber);
+                    break;
+                case DECREMENT:
+                    this.runDecrementLine(line, lineNumber);
+                    break;
+                case WHILE:
+                    this.runWhileLine(line, lineNumber);
+                    break;
+                case END:
+                    this.runEndLine(lineNumber);
+                    break;
+            }
+        } catch(Exception e) {
+            ErrorHandler.crash(Error.INVALID_COMMAND, lineNumber);
+        }
     }
 
     /**
@@ -154,11 +212,30 @@ class Interpreter {
      * Runs a line of code with a while command
      * @param lineNumber The line number
      */
-    private void runWhileLine(int lineNumber) {
+    private void runWhileLine(String line, int lineNumber) {
         try {
-            this.loopMemory.setLoopStart(lineNumber);
+            ConditionLine conditionLine = new ConditionLine(Command.WHILE, line);
+
+            try {
+                String[] variablesToSubmit = conditionLine.getVariablesToSubmit();
+
+                for (String variable: variablesToSubmit) {
+                    Integer value = this.variableMemory.getValueForVariable(variable);
+                    conditionLine.setVariable(variable, value);
+                }
+
+                try {
+                    if (!conditionLine.isConditionTrue()) {
+                        this.currentLineIndex = this.loopMemory.getLoopEnd(lineNumber);
+                    }
+                } catch(Exception e) {
+                    ErrorHandler.crash(Error.INVALID_SYNTAX, lineNumber);
+                }
+            } catch(Exception e) {
+                ErrorHandler.crash(Error.UNDEFINED_VARIABLE, lineNumber);
+            }
         } catch(Exception e) {
-            ErrorHandler.crash(Error.REDEFINED_LOOP, lineNumber);
+            ErrorHandler.crash(Error.INVALID_SYNTAX, lineNumber);
         }
     }
 
@@ -167,11 +244,7 @@ class Interpreter {
      * @param lineNumber The line number
      */
     private void runEndLine(int lineNumber) {
-        try {
-            this.loopMemory.setLoopEnd(lineNumber);
-        } catch(Exception e) {
-            ErrorHandler.crash(Error.UNDEFINED_LOOP, lineNumber);
-        }
+        this.currentLineIndex = this.loopMemory.getLoopStart(lineNumber) - 1;
     }
 
 }
