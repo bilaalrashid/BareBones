@@ -21,8 +21,12 @@ public class Main {
                 String code = Files.readString(path, StandardCharsets.UTF_8);
                 Interpreter interpreter = new Interpreter(code);
 
-                Map<String, Integer> variables = interpreter.exec();
-                Console.write("Execution finished: " + variables);
+                try {
+                    Map<String, Integer> variables = interpreter.exec();
+                    Console.write("Execution finished: " + variables);
+                } catch(Exception e) {
+                    ErrorHandler.crash(Error.INVALID_SYNTAX);
+                }
             } catch(Exception e) {
                 ErrorHandler.crash(Error.FILE_CANNOT_BE_READ);
             }

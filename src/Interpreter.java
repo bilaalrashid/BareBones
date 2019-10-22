@@ -43,7 +43,7 @@ class Interpreter {
      * Executes the code
      */
     Map<String, Integer> exec() {
-        while (this.currentLineIndex <= this.lines.length) {
+        while (this.currentLineIndex < this.lines.length) {
             String line = this.lines[this.currentLineIndex];
             int nextLineIndex = this.currentLineIndex + 1;
 
