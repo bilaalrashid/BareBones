@@ -17,7 +17,7 @@ class ConditionLine extends Line {
     /**
      * The comparator to compare the two elements by
      */
-    private String comparator;
+    private Comparator comparator;
 
     /**
      * The secondary item to compare in the condition
@@ -39,7 +39,7 @@ class ConditionLine extends Line {
 
         if (components.length == 5 && components[0].equals(command.getName())) {
             this.primaryComparee = getFormattedElement(components[1]);
-            this.comparator = components[2];
+            this.comparator = Comparator.fromLine(components[2]);
             this.secondaryComparee = getFormattedElement(components[3]);
         } else {
             throw new RuntimeException("Invalid syntax");
@@ -95,7 +95,21 @@ class ConditionLine extends Line {
      * @throws NullPointerException Values not set
      */
     boolean isConditionTrue() throws NullPointerException {
-        return !this.primaryComparee.getValue().equals(this.secondaryComparee.getValue());
+        Integer primaryValue = this.primaryComparee.getValue();
+        Integer secondaryValue = this.secondaryComparee.getValue();
+
+        switch (this.comparator) {
+            case EQUALS:
+                return primaryValue.equals(secondaryValue);
+            case NOT_EQUALS:
+                return !primaryValue.equals(secondaryValue);
+            case GREATER_THAN:
+                return primaryValue > secondaryValue;
+            case LESS_THAN:
+                return primaryValue < secondaryValue;
+        }
+
+        throw new NullPointerException("Invalid syntax");
     }
 
     // Private methods

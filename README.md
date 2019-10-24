@@ -12,11 +12,24 @@ java Main test.bare
 ### Comments
 
 Comments can be achieved by using `#`, after which, the interpreter will ignore everything on that line.
-e.g. 
+
+Example:
 ```
 clear X; # Sets X to 0
 ```
 
+### Comparators
+
+Comparators can be used to evaluate boolean expression using:
+ - `is` - equal to
+ - `not` - not equal to
+ - `above` - greater than (exclusive)
+ - `under` - less than (exclusive) 
+ 
+Example:
+```
+while X is 0 do;
+```
 
 # Example
 
