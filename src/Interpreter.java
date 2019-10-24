@@ -10,7 +10,7 @@ class Interpreter {
     /**
      * The lines of code
      */
-    private final String[] lines;
+    private final Line[] lines;
 
     /**
      * The interpreter memory for storing variables
@@ -44,13 +44,13 @@ class Interpreter {
      */
     Map<String, Integer> exec() {
         while (this.currentLineIndex < this.lines.length) {
-            String line = this.lines[this.currentLineIndex];
-            int nextLineIndex = this.currentLineIndex + 1;
+            Line line = this.lines[this.currentLineIndex];
+            int currentLine = this.currentLineIndex;
 
-            this.executeLine(line, this.currentLineIndex);
+            this.executeLine(line);
 
             // Checks a jump has not occurred
-            if (this.currentLineIndex + 1 == nextLineIndex) {
+            if (this.currentLineIndex == currentLine) {
                 this.currentLineIndex += 1;
             }
         }
@@ -65,31 +65,40 @@ class Interpreter {
      * @param code The raw code
      * @return The individual lines of code
      */
-    private String[] splitCodeIntoLines(String code) {
+    private Line[] splitCodeIntoLines(String code) {
         String removeWhitespace = "(?m)^[ \t]*\r?\n";
         code = code.replaceAll(removeWhitespace, "").trim();
 
         String[] lines = code.split(";");
+        Line[] parsedLines = new Line[lines.length];
 
         for (int i = 0; i < lines.length; i++) {
-            String line = lines[i];
-
-            lines[i] = line.trim();
+            String lineContent = lines[i];
 
             try {
-                Command command = Command.fromLine(line);
+                Command command = Command.fromLine(lineContent);
 
-                if (command == Command.WHILE) {
-                    this.markLoop(i);
-                } else if (command == Command.END) {
-                    this.markEnd(i);
+                switch (command) {
+                    case SET:
+                    case INCREMENT:
+                    case DECREMENT:
+                        parsedLines[i] = new SimpleLine(i, command, lineContent.trim());
+                        break;
+                    case WHILE:
+                        parsedLines[i] = new ConditionLine(i, command, lineContent.trim());
+                        this.markLoop(i);
+                        break;
+                    case END:
+                        parsedLines[i] = new Line(i, command, lineContent.trim());
+                        this.markEnd(i);
+                        break;
                 }
             } catch(Exception e) {
                 ErrorHandler.crash(Error.INVALID_COMMAND, i);
             }
         }
 
-        return lines;
+        return parsedLines;
     }
 
     /**
@@ -119,132 +128,101 @@ class Interpreter {
     /**
      * Executes an individual line of code
      * @param line The line of code
-     * @param lineIndex The number of the line
      */
-    private void executeLine(String line, int lineIndex) {
-        try {
-            Command command = Command.fromLine(line);
-
-            switch (command) {
-                case SET:
-                    this.runSetLine(line, lineIndex);
-                    break;
-                case INCREMENT:
-                    this.runIncrementLine(line, lineIndex);
-                    break;
-                case DECREMENT:
-                    this.runDecrementLine(line, lineIndex);
-                    break;
-                case WHILE:
-                    this.runWhileLine(line, lineIndex);
-                    break;
-                case END:
-                    this.runEndLine(lineIndex);
-                    break;
-            }
-        } catch(Exception e) {
-            ErrorHandler.crash(Error.INVALID_COMMAND, lineIndex);
+    private void executeLine(Line line) {
+        switch (line.getCommand()) {
+            case SET:
+                this.runSetLine((SimpleLine) line);
+                break;
+            case INCREMENT:
+                this.runIncrementLine((SimpleLine) line);
+                break;
+            case DECREMENT:
+                this.runDecrementLine((SimpleLine) line);
+                break;
+            case WHILE:
+                this.runWhileLine((ConditionLine) line);
+                break;
+            case END:
+                this.runEndLine(line);
+                break;
         }
     }
 
     /**
      * Runs a line of code with a set command
      * @param line The line of code
-     * @param lineIndex The line number
      */
-    private void runSetLine(String line, int lineIndex) {
-        try {
-            SimpleLine simpleLine = new SimpleLine(Command.SET, line);
-            String variable = simpleLine.getVariable();
+    private void runSetLine(SimpleLine line) {
+        String variable = line.getVariable();
 
-            try {
-                this.variableMemory.setVariable(variable, 0);
-            } catch(Exception e) {
-                ErrorHandler.crash(Error.REDEFINED_VARIABLE, lineIndex);
-            }
+        try {
+            this.variableMemory.setVariable(variable, 0);
         } catch(Exception e) {
-            ErrorHandler.crash(Error.INVALID_SYNTAX, lineIndex);
+            ErrorHandler.crash(Error.REDEFINED_VARIABLE, line.getLineIndex());
         }
     }
 
     /**
      * Runs a line of code with an increment command
      * @param line The line of code
-     * @param lineIndex The line number
      */
-    private void runIncrementLine(String line, int lineIndex) {
-        try {
-            SimpleLine simpleLine = new SimpleLine(Command.INCREMENT, line);
-            String variable = simpleLine.getVariable();
+    private void runIncrementLine(SimpleLine line) {
+        String variable = line.getVariable();
 
-            try {
-                this.variableMemory.increaseVariable(variable, 1);
-            } catch(Exception e) {
-                ErrorHandler.crash(Error.UNDEFINED_VARIABLE, lineIndex);
-            }
+        try {
+            this.variableMemory.increaseVariable(variable, 1);
         } catch(Exception e) {
-            ErrorHandler.crash(Error.INVALID_SYNTAX, lineIndex);
+            ErrorHandler.crash(Error.UNDEFINED_VARIABLE, line.getLineIndex());
         }
     }
 
     /**
      * Runs a line of code with an decrement command
      * @param line The line of code
-     * @param lineIndex The line number
      */
-    private void runDecrementLine(String line, int lineIndex) {
-        try {
-            SimpleLine simpleLine = new SimpleLine(Command.DECREMENT, line);
-            String variable = simpleLine.getVariable();
+    private void runDecrementLine(SimpleLine line) {
+        String variable = line.getVariable();
 
-            try {
-                this.variableMemory.decreaseVariable(variable, 1);
-            } catch(Exception e) {
-                ErrorHandler.crash(Error.UNDEFINED_VARIABLE, lineIndex);
-            }
+        try {
+            this.variableMemory.decreaseVariable(variable, 1);
         } catch(Exception e) {
-            ErrorHandler.crash(Error.INVALID_SYNTAX, lineIndex);
+            ErrorHandler.crash(Error.UNDEFINED_VARIABLE, line.getLineIndex());
         }
     }
 
     /**
      * Runs a line of code with a while command
-     * @param lineIndex The line number
+     * @param line The line of code
      */
-    private void runWhileLine(String line, int lineIndex) {
+    private void runWhileLine(ConditionLine line) {
         try {
-            ConditionLine conditionLine = new ConditionLine(Command.WHILE, line);
+            String[] variablesToSubmit = line.getVariablesToSubmit();
+
+            for (String variable: variablesToSubmit) {
+                Integer value = this.variableMemory.getValueForVariable(variable);
+                line.setVariable(variable, value);
+            }
 
             try {
-                String[] variablesToSubmit = conditionLine.getVariablesToSubmit();
-
-                for (String variable: variablesToSubmit) {
-                    Integer value = this.variableMemory.getValueForVariable(variable);
-                    conditionLine.setVariable(variable, value);
-                }
-
-                try {
-                    if (!conditionLine.isConditionTrue()) {
-                        // Skip to the first line after the end of the loop
-                        this.currentLineIndex = this.loopMemory.getLoopEnd(lineIndex) + 1;
-                    }
-                } catch(Exception e) {
-                    ErrorHandler.crash(Error.INVALID_SYNTAX, lineIndex);
+                if (!line.isConditionTrue()) {
+                    // Skip to the first line after the end of the loop
+                    this.currentLineIndex = this.loopMemory.getLoopEnd(line.getLineIndex()) + 1;
                 }
             } catch(Exception e) {
-                ErrorHandler.crash(Error.UNDEFINED_VARIABLE, lineIndex);
+                ErrorHandler.crash(Error.INVALID_SYNTAX, line.getLineIndex());
             }
         } catch(Exception e) {
-            ErrorHandler.crash(Error.INVALID_SYNTAX, lineIndex);
+            ErrorHandler.crash(Error.UNDEFINED_VARIABLE, line.getLineIndex());
         }
     }
 
     /**
      * Runs a line of code with an end command
-     * @param lineIndex The line number
+     * @param line The line of code
      */
-    private void runEndLine(int lineIndex) {
-        this.currentLineIndex = this.loopMemory.getLoopStart(lineIndex);
+    private void runEndLine(Line line) {
+        this.currentLineIndex = this.loopMemory.getLoopStart(line.getLineIndex());
     }
 
 }

@@ -1,14 +1,9 @@
 /**
  * A line of code that uses a simple command
  */
-class SimpleLine {
+class SimpleLine extends Line {
 
-    // Variables
-
-    /**
-     * The command contained in the line
-     */
-    private Command command;
+    // Properties
 
     /**
      * The variable contained in the line
@@ -19,23 +14,18 @@ class SimpleLine {
 
     /**
      * Creates a new SimpleLine
-     * @param command The command contained in the line
-     * @param line The line of code
+     * @param lineIndex The line number
+     * @param command The command used in the line
+     * @param text The text of the line
+     * @throws RuntimeException Invalid syntax
      */
-    SimpleLine(Command command, String line) {
-        this.command = command;
-        this.variable = getVariableFromLine(command, line);
+    SimpleLine(int lineIndex, Command command, String text) throws RuntimeException {
+        super(lineIndex, command, text);
+
+        this.variable = getVariableFromLine(command, text);
     }
 
     // Getters
-
-    /**
-     * Gets the command contained in the line
-     * @return The command
-     */
-    Command getCommand() {
-        return this.command;
-    }
 
     /**
      * Gets the variable that the command acts on

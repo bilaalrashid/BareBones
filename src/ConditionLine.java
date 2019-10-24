@@ -5,14 +5,9 @@ import java.util.List;
 /**
  * A line of code that uses a boolean condition
  */
-class ConditionLine {
+class ConditionLine extends Line {
 
-    // Variables
-
-    /**
-     * The command used in the line
-     */
-    private Command command;
+    // Properties
 
     /**
      * The primary item to compare in the condition
@@ -34,13 +29,13 @@ class ConditionLine {
     /**
      * Creates a new ConditionLine
      * @param command The command used in the line
-     * @param line The text of the line of code
+     * @param text The text of the line of code
      * @throws RuntimeException Invalid syntax
      */
-    ConditionLine(Command command, String line) throws RuntimeException {
-        this.command = command;
+    ConditionLine(int lineIndex, Command command, String text) throws RuntimeException {
+        super(lineIndex, command, text);
 
-        String[] components = line.split(" ");
+        String[] components = text.split(" ");
 
         if (components.length == 5 && components[0].equals(command.getName())) {
             this.primaryComparee = getFormattedElement(components[1]);
@@ -61,12 +56,16 @@ class ConditionLine {
     String[] getVariablesToSubmit() throws NullPointerException {
         List<String> emptyVariables = new ArrayList<String>();
 
-        if (this.primaryComparee.getValue() == null) {
-            emptyVariables.add(this.primaryComparee.getKey());
+        String primaryKey = this.primaryComparee.getKey();
+
+        if (primaryKey != null) {
+            emptyVariables.add(primaryKey);
         }
 
-        if (this.secondaryComparee.getValue() == null) {
-            emptyVariables.add(this.secondaryComparee.getKey());
+        String secondaryKey = this.secondaryComparee.getKey();
+
+        if (secondaryKey != null) {
+            emptyVariables.add(secondaryKey);
         }
 
         String[] variablesToSubmit = new String[emptyVariables.size()];
