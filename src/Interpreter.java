@@ -66,14 +66,14 @@ class Interpreter {
      * @return The individual lines of code
      */
     private Line[] splitCodeIntoLines(String code) {
-        String removeWhitespace = "(?m)^[ \t]*\r?\n";
+        String removeWhitespace = "(?m)^[ \t]*\r?\n|#(.*)";
         code = code.replaceAll(removeWhitespace, "").trim();
 
         String[] lines = code.split(";");
         Line[] parsedLines = new Line[lines.length];
 
         for (int i = 0; i < lines.length; i++) {
-            String lineContent = lines[i];
+            String lineContent = lines[i].trim();
 
             try {
                 Command command = Command.fromLine(lineContent);
@@ -82,14 +82,14 @@ class Interpreter {
                     case SET:
                     case INCREMENT:
                     case DECREMENT:
-                        parsedLines[i] = new SimpleLine(i, command, lineContent.trim());
+                        parsedLines[i] = new SimpleLine(i, command, lineContent);
                         break;
                     case WHILE:
-                        parsedLines[i] = new ConditionLine(i, command, lineContent.trim());
+                        parsedLines[i] = new ConditionLine(i, command, lineContent);
                         this.markLoop(i);
                         break;
                     case END:
-                        parsedLines[i] = new Line(i, command, lineContent.trim());
+                        parsedLines[i] = new Line(i, command, lineContent);
                         this.markEnd(i);
                         break;
                 }
