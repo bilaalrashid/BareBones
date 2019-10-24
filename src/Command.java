@@ -46,7 +46,7 @@ enum Command {
      * @return The command used
      * @throws IllegalArgumentException A command was not found
      */
-    public static Command fromLine(String line) {
+    public static Command fromLine(String line) throws IllegalArgumentException {
         for (Command command : Command.values()) {
             if (line.contains(command.name)) {
                 return command;

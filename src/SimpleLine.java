@@ -43,7 +43,7 @@ class SimpleLine extends Line {
      * @param line The line of code
      * @return The variable
      */
-    private String getVariableFromLine(Command command, String line) {
+    private String getVariableFromLine(Command command, String line) throws RuntimeException {
         String[] components = line.split(" ");
 
         if (components.length == 2 && components[0].equals(command.getName())) {

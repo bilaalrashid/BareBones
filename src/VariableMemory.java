@@ -21,7 +21,7 @@ class VariableMemory {
      * @param value The value of the variable
      * @throws RuntimeException Variable is already set
      */
-    void setVariable(String variable, int value) {
+    void setVariable(String variable, int value) throws RuntimeException {
         if (this.variables.containsKey(variable)) {
             throw new RuntimeException("Variable is already set");
         }
@@ -35,7 +35,7 @@ class VariableMemory {
      * @param increment The value to increment by
      * @throws RuntimeException Variable is not defined
      */
-    void increaseVariable(String variable, int increment) {
+    void increaseVariable(String variable, int increment) throws RuntimeException {
         if (!this.variables.containsKey(variable)) {
             throw new RuntimeException("Variable is not defined");
         }
@@ -51,7 +51,7 @@ class VariableMemory {
      * @param decrement The value to increment by
      * @throws RuntimeException Variable is not defined
      */
-    void decreaseVariable(String variable, int decrement) {
+    void decreaseVariable(String variable, int decrement) throws RuntimeException {
         if (!this.variables.containsKey(variable)) {
             throw new RuntimeException("Variable is not defined");
         }
